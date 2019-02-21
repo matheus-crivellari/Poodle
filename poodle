@@ -1,0 +1,77 @@
+<?php
+
+/**
+ * 'init' command.
+ */
+if(isset($argv[1])){
+
+    if($argv[1] == 'init'){
+            $type = isset($argv[2]) ? $argv[2] : '';
+            $pluginname = isset($argv[3]) ? $argv[3] : '';
+            $exhibition_name = isset($argv[4]) ? $argv[4] : '';
+        
+            if(!$type){
+                echo 'Your plugin must specify a type';
+                exit(1);
+            }
+        
+            if(!$pluginname){
+                echo 'Your plugin must have a name';
+                exit(1);
+            }
+        
+            $component_name = $type . '_' . $pluginname;
+        
+            $exhibition_name = $exhibition_name ? $exhibition_name : $component_name;
+            
+            $author = readline('Enter your name: ');
+            $email  = readline('Enter your e-mail:');
+        
+            $file = fopen('version.php', 'w');
+            $current_year = date('Y');
+            $version_str = "
+<?php
+/**
+ * @package     $component_name
+ * @copyright   $current_year, $author <$email>
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+defined('MOODLE_INTERNAL') || die();
+";
+            $version_str .= '$plugin->version   = ' . date('Y') . date('m') . date('d') . '01' . ";\n";
+            $version_str .= '$plugin->requires  = 2019021500' . ";\n";
+            $version_str .= '$plugin->cron      = 0' . ";\n";
+            $version_str .= '$plugin->component = ' . $component_name . ";\n";
+            $version_str .= '$plugin->maturity  = MATURITY_ALPHA' . ";\n";
+            $version_str .= '$plugin->release   = \'v0.0.1\'' . ";\n";
+        
+            fwrite($file, $version_str);
+            fclose($file);
+        
+            mkdir('./lang/en', 0777, true);
+            $file = fopen("./lang/en/$component_name.php",'w');
+        
+            $lang_str = '<?php
+$string[\'pluginname\'] = ' . "'$exhibition_name'" . ";\n";
+            fwrite($file, $lang_str);
+            fclose($file);
+        
+            mkdir('./db');
+            fopen('./db/upgrade.php','w');
+            fopen('./db/access.php','w');
+            fopen('./db/install.php','w');
+            fopen('./db/uninstall.php','w');
+            fopen('./db/events.php','w');
+            fopen('./db/messages.php','w');
+            fopen('./db/services.php','w');
+            fopen('./db/renamedclasses.php','w');
+        
+            mkdir('./classes', 0777);
+            mkdir('./cli', 0777);
+        
+            fopen('./settings.php', 'w');
+            fopen('./readme_moodle.txt', 'w');
+            fopen('./README.md', 'w');
+    }
+}
