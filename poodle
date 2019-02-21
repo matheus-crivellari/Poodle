@@ -1,36 +1,51 @@
 <?php
 
-/**
- * 'init' command.
- */
 if(isset($argv[1])){
-
+    /**
+     * 'init' command.
+     */
     if($argv[1] == 'init'){
-            $type = isset($argv[2]) ? $argv[2] : '';
-            $pluginname = isset($argv[3]) ? $argv[3] : '';
-            $exhibition_name = isset($argv[4]) ? $argv[4] : '';
+        if(file_exists('./version.php')){
+            echo 'Fatal: A plugin already exists in this folder';
+            exit(1);
+        }
+
+        $type       = isset($argv[2]) ? strtolower($argv[2]) : '';
+        $pluginname = isset($argv[3]) ? strtolower($argv[3]) : '';
+        $exhibition_name = isset($argv[4]) ? $argv[4] : '';
+    
+        if(!$type){
+            echo 'Fatal: Your plugin must specify a type';
+            exit(1);
+        }
+    
+        if(!$pluginname){
+            echo 'Fatal: Your plugin must have a name';
+            exit(1);
+        }
+    
+        $component_name = $type . '_' . $pluginname;
+
         
-            if(!$type){
-                echo 'Your plugin must specify a type';
-                exit(1);
-            }
+        $exhibition_name = $exhibition_name ? $exhibition_name : $component_name;
         
-            if(!$pluginname){
-                echo 'Your plugin must have a name';
-                exit(1);
-            }
-        
-            $component_name = $type . '_' . $pluginname;
-        
-            $exhibition_name = $exhibition_name ? $exhibition_name : $component_name;
-            
-            $author = readline('Enter your name: ');
-            $email  = readline('Enter your e-mail:');
-        
-            $file = fopen('version.php', 'w');
-            $current_year = date('Y');
-            $version_str = "
-<?php
+        $author = readline('Enter your name: ');
+        $email  = readline('Enter your e-mail:');
+
+        $json = fopen('poodle.json','w');
+        fwrite($json,json_encode([
+            'author' => [
+                'name' => $author,
+                'email' => $email,
+            ],
+            'component_name' => $component_name
+
+        ]));
+        fclose($json);
+    
+        $file = fopen('version.php', 'w');
+        $current_year = date('Y');
+        $version_str = "<?php
 /**
  * @package     $component_name
  * @copyright   $current_year, $author <$email>
@@ -38,40 +53,91 @@ if(isset($argv[1])){
  */
 
 defined('MOODLE_INTERNAL') || die();
+
 ";
-            $version_str .= '$plugin->version   = ' . date('Y') . date('m') . date('d') . '01' . ";\n";
-            $version_str .= '$plugin->requires  = 2019021500' . ";\n";
-            $version_str .= '$plugin->cron      = 0' . ";\n";
-            $version_str .= '$plugin->component = ' . $component_name . ";\n";
-            $version_str .= '$plugin->maturity  = MATURITY_ALPHA' . ";\n";
-            $version_str .= '$plugin->release   = \'v0.0.1\'' . ";\n";
-        
-            fwrite($file, $version_str);
-            fclose($file);
-        
-            mkdir('./lang/en', 0777, true);
-            $file = fopen("./lang/en/$component_name.php",'w');
-        
-            $lang_str = '<?php
+        $version_str .= '$plugin->version   = ' . date('Y') . date('m') . date('d') . '01' . ";\n";
+        $version_str .= '$plugin->requires  = 2019021500' . ";\n";
+        $version_str .= '$plugin->cron      = 0' . ";\n";
+        $version_str .= '$plugin->component = ' . "'$component_name'" . ";\n";
+        $version_str .= '$plugin->maturity  = MATURITY_ALPHA' . ";\n";
+        $version_str .= '$plugin->release   = \'v0.0.1\'' . ";\n";
+    
+        fwrite($file, $version_str);
+        fclose($file);
+    
+        mkdir('./lang/en', 0777, true);
+        $file = fopen("./lang/en/$component_name.php",'w');
+    
+        $lang_str = '<?php
 $string[\'pluginname\'] = ' . "'$exhibition_name'" . ";\n";
+        fwrite($file, $lang_str);
+        fclose($file);
+    
+        mkdir('./db');
+        fopen('./db/upgrade.php','w');
+        fopen('./db/access.php','w');
+        fopen('./db/install.php','w');
+        fopen('./db/uninstall.php','w');
+        fopen('./db/events.php','w');
+        fopen('./db/messages.php','w');
+        fopen('./db/services.php','w');
+        fopen('./db/renamedclasses.php','w');
+    
+        mkdir('./classes', 0777);
+        mkdir('./cli', 0777);
+    
+        fopen('./settings.php', 'w');
+        fopen('./readme_moodle.txt', 'w');
+        // fopen('./README.md', 'w');
+
+        echo 'Message: Moodle plugin successfully created';
+
+        exit(0);
+    }
+
+    if($argv[1] == 'lang'){
+        $op = isset($argv[2]) ? $argv[2] : '';
+
+        if(!file_exists('./version.php')){
+            echo 'Fatal: Not a Moodle plugin';
+            exit(1);
+        }
+
+        if($op == ''){
+            echo 'Fatal: You must specify an operation';
+            exit(1);
+        }
+
+        if($op == 'add'){
+            if(!file_exists('./poodle.json')){
+                echo 'Fatal: poodle.json is missing.';
+                exit(1);
+            }
+            
+            $json = json_decode(file_get_contents('./poodle.json'));
+            $lang_str = file_get_contents('./lang/en/' . $json->component_name . '.php');
+
+            $language = isset($argv[3]) ? $argv[3] : '';
+
+            if($language == ''){
+                echo 'Fatal: You must specify a language';
+                exit(1);
+            }
+            
+            if(!file_exists("./lang/$language"))
+                mkdir("./lang/$language");
+
+            if(!file_exists("./lang/$language/" . $json->component_name . '.php'))
+                $file = fopen("./lang/$language/" . $json->component_name . '.php','w');
+            else
+                $file = fopen("./lang/$language/" . $json->component_name . '.php','+w');
+                
             fwrite($file, $lang_str);
             fclose($file);
-        
-            mkdir('./db');
-            fopen('./db/upgrade.php','w');
-            fopen('./db/access.php','w');
-            fopen('./db/install.php','w');
-            fopen('./db/uninstall.php','w');
-            fopen('./db/events.php','w');
-            fopen('./db/messages.php','w');
-            fopen('./db/services.php','w');
-            fopen('./db/renamedclasses.php','w');
-        
-            mkdir('./classes', 0777);
-            mkdir('./cli', 0777);
-        
-            fopen('./settings.php', 'w');
-            fopen('./readme_moodle.txt', 'w');
-            fopen('./README.md', 'w');
+
+            echo 'Message: Language string file successfully created';
+
+            exit(0);
+        }
     }
 }
