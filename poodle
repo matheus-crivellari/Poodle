@@ -13,22 +13,22 @@ if(isset($argv[1])){
         $type       = isset($argv[2]) ? strtolower($argv[2]) : '';
         $pluginname = isset($argv[3]) ? strtolower($argv[3]) : '';
         $exhibition_name = isset($argv[4]) ? $argv[4] : '';
-    
+
         if(!$type){
             echo 'Fatal: Your plugin must specify a type';
             exit(1);
         }
-    
+
         if(!$pluginname){
             echo 'Fatal: Your plugin must have a name';
             exit(1);
         }
-    
+
         $component_name = $type . '_' . $pluginname;
 
-        
+
         $exhibition_name = $exhibition_name ? $exhibition_name : $component_name;
-        
+
         $author = readline('Enter your name: ');
         $email  = readline('Enter your e-mail:');
 
@@ -42,7 +42,7 @@ if(isset($argv[1])){
 
         ]));
         fclose($json);
-    
+
         $file = fopen('version.php', 'w');
         $current_year = date('Y');
         $version_str = "<?php
@@ -61,18 +61,18 @@ defined('MOODLE_INTERNAL') || die();
         $version_str .= '$plugin->component = ' . "'$component_name'" . ";\n";
         $version_str .= '$plugin->maturity  = MATURITY_ALPHA' . ";\n";
         $version_str .= '$plugin->release   = \'v0.0.1\'' . ";\n";
-    
+
         fwrite($file, $version_str);
         fclose($file);
-    
+
         mkdir('./lang/en', 0777, true);
         $file = fopen("./lang/en/$component_name.php",'w');
-    
+
         $lang_str = '<?php
 $string[\'pluginname\'] = ' . "'$exhibition_name'" . ";\n";
         fwrite($file, $lang_str);
         fclose($file);
-    
+
         mkdir('./db');
         fopen('./db/upgrade.php','w');
         fopen('./db/access.php','w');
@@ -82,10 +82,10 @@ $string[\'pluginname\'] = ' . "'$exhibition_name'" . ";\n";
         fopen('./db/messages.php','w');
         fopen('./db/services.php','w');
         fopen('./db/renamedclasses.php','w');
-    
+
         mkdir('./classes', 0777);
         mkdir('./cli', 0777);
-    
+
         fopen('./settings.php', 'w');
         fopen('./readme_moodle.txt', 'w');
         // fopen('./README.md', 'w');
@@ -95,25 +95,28 @@ $string[\'pluginname\'] = ' . "'$exhibition_name'" . ";\n";
         exit(0);
     }
 
+    /**
+     * Language commands group
+     */
     if($argv[1] == 'lang'){
         $op = isset($argv[2]) ? $argv[2] : '';
 
-        if(!file_exists('./version.php')){
-            echo 'Fatal: Not a Moodle plugin';
-            exit(1);
-        }
+        isAPlugin();
 
         if($op == ''){
             echo 'Fatal: You must specify an operation';
             exit(1);
         }
 
+        /**
+         * Add a new language folder and
+         */
         if($op == 'add'){
             if(!file_exists('./poodle.json')){
                 echo 'Fatal: poodle.json is missing.';
                 exit(1);
             }
-            
+
             $json = json_decode(file_get_contents('./poodle.json'));
             $lang_str = file_get_contents('./lang/en/' . $json->component_name . '.php');
 
@@ -123,7 +126,7 @@ $string[\'pluginname\'] = ' . "'$exhibition_name'" . ";\n";
                 echo 'Fatal: You must specify a language';
                 exit(1);
             }
-            
+
             if(!file_exists("./lang/$language"))
                 mkdir("./lang/$language");
 
@@ -131,7 +134,7 @@ $string[\'pluginname\'] = ' . "'$exhibition_name'" . ";\n";
                 $file = fopen("./lang/$language/" . $json->component_name . '.php','w');
             else
                 $file = fopen("./lang/$language/" . $json->component_name . '.php','+w');
-                
+
             fwrite($file, $lang_str);
             fclose($file);
 
@@ -139,5 +142,23 @@ $string[\'pluginname\'] = ' . "'$exhibition_name'" . ";\n";
 
             exit(0);
         }
+    }
+
+    /**
+     * Add a language string
+     */
+    if($argv[1] == 'str'){
+
+    }
+}
+
+/**
+ * Emits a fatal error if this folder is not a Moodle plugin
+ */
+function isAPlugin()
+{
+    if(!file_exists('./version.php')){
+        echo 'Fatal: Not a Moodle plugin';
+        exit(1);
     }
 }
