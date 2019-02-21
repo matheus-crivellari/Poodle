@@ -168,7 +168,7 @@ $string[\'pluginname\'] = ' . "'$exhibition_name'" . ";\n";
 						fclose($file);
 					}
 
-					echo 'Message: New string key added to local file';
+					echo "Message: New string key \"$key\" added to locale files";
 					exit(0);
 
 				}else{
