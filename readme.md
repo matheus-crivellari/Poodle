@@ -22,4 +22,4 @@ The idea behind this project is to provide a CLI tool for Moodle as well, so tha
 
 
 ## Contributing
-Feel free to clone this repository and work on any feature you want, make a pull request and we will moderate your contribution and if needed we'll make it alive along with this project.
+Feel free to clone this repository and work on any feature you feel like, make a pull request and we will moderate your contribution and if we judge it's worth we'll make it live.
