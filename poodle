@@ -177,7 +177,16 @@ $string[\'pluginname\'] = ' . "'$exhibition_name'" . ";\n";
 				}
 			}
 
-			echo "Fatal: Unknown option '$op'";
+			/**
+			 * Insert new options for str command here
+			 * all options must end in an exit function
+			 * passing 1 for error 0 for success
+			 *
+			 * if no matching option is passed
+			 * code will exit with error
+			 */
+
+			echo "Fatal: Unknown option \"$op\" for command str";
 			exit(1);
 		}else{
 			echo 'Fatal: You must specify an operation';
