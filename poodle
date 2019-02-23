@@ -71,7 +71,7 @@ defined('MOODLE_INTERNAL') || die();
         $file = fopen($f . "/lang/en/$component_name.php",'w');
 
         $lang_str = '<?php
-$string[\'pluginname\'] = ' . "'$exhibition_name'" . ";\n";
+$string[\'pluginname\'] = ' . "'$exhibition_name'" . ";";
         fwrite($file, $lang_str);
         fclose($file);
 
@@ -86,6 +86,7 @@ $string[\'pluginname\'] = ' . "'$exhibition_name'" . ";\n";
         fopen($f . '/db/renamedclasses.php','w');
 
         mkdir($f . '/classes', 0777);
+        mkdir($f . '/classes/task', 0777);
         mkdir($f . '/cli', 0777);
 
         fopen($f . '/settings.php', 'w');
@@ -155,20 +156,7 @@ $string[\'pluginname\'] = ' . "'$exhibition_name'" . ";\n";
 					// $key = strtolower($key);
 					$value = param(4);
 
-					$folders = scandir($f . '/lang');
-
-					foreach($folders as $folder){
-						if($folder == '.') continue;
-						if($folder == '..') continue;
-
-						$lang_file_name = $f . "/lang/$folder/$json->component_name.php";
-						$lang_str = file_get_contents($lang_file_name);
-
-
-						$file = fopen($lang_file_name,'w');
-						fwrite($file, $lang_str . "\n\$string['$key'] = '$value';");
-						fclose($file);
-					}
+					add_locale_string($key, $value);
 
 					echo "Message: New string key \"$key\" added to locale files";
 					exit(0);
@@ -194,7 +182,81 @@ $string[\'pluginname\'] = ' . "'$exhibition_name'" . ";\n";
 			echo 'Fatal: You must specify an operation';
 			exit(1);
 		}
+    }
+    
+    if(param(1) == 'task'){
+		$json       	= getPoodleJson();
+		$component_name = $json->component_name;
+
+		if($op = param(2)){
+			if($op == 'add'){
+				$taskname = param(3);
+			
+				if($taskname == ''){
+					echo 'Fatal: You must specify a task name';
+					exit(1);
+				}
+		
+				if(!file_exists($f . '/classes')){
+					mkdir($f . '/classes');
+				}
+		
+				if(!file_exists($f . '/classes/task')){
+					mkdir($f . '/classes/task');
+				}
+		
+				$taskname 			= preg_replace('/\s+/', '', $taskname);
+				$taskname_str_key 	= $taskname . '_task';
+		
+				$task_class_str = "<?php
+namespace $component_name\\task;
+
+/**
+ * An example of a scheduled task.
+ */
+class $taskname extends \\core\\task\\scheduled_task {
+	
+	/**
+	 * Return the task's name as shown in admin screens.
+	 *
+	 * @return string
+	 */
+	public function get_name() {
+		return get_string('$taskname_str_key', '$component_name');
 	}
+	
+	/**
+	 * Execute the task.
+	 */
+	public function execute() {
+		// Apply fungus cream.
+		// Apply chainsaw.
+		// Apply olive oil.
+	}
+}";
+			
+				$file = fopen($f . "/classes/task/$taskname.php", 'w');
+				fwrite($file, $task_class_str);
+				fclose($file);
+		
+				add_locale_string($taskname_str_key, $taskname . ' scheduled task');
+
+				/**
+				 * TO-DO: Registrate the task on the 
+				 * db task file
+				 */
+		
+				echo 'Message: Scheduled task class successfully added';
+				exit(0);
+			}
+
+			echo "Fatal: Unknown option \"$op\" for command str";
+			exit(1);
+		}else{
+			echo 'Fatal: You must specify an operation';
+			exit(1);
+		}
+    }
 
 	if(param(1) == 'test'){
 		test();
@@ -230,6 +292,7 @@ function isAPlugin()
  */
 function getPoodleJson()
 {
+	global $f;
     if(!file_exists($f . '/poodle.json')){
         echo 'Fatal: poodle.json is missing.';
         exit(1);
@@ -246,4 +309,30 @@ function param($index = 0)
 {
 	global $argv;
     return isset($argv[$index]) ? $argv[$index] : '';
+}
+
+/**
+ * Adds a string key to locale files
+ */
+function add_locale_string($key, $value='')
+{
+	global $f;
+	$json = getPoodleJson();
+
+	$folders = scandir($f . '/lang');
+
+	foreach($folders as $folder){
+		if($folder == '.') continue;
+		if($folder == '..') continue;
+
+		$lang_file_name = $f . "/lang/$folder/$json->component_name.php";
+		$lang_str = file_get_contents($lang_file_name);
+
+
+		$file = fopen($lang_file_name,'w');
+		fwrite($file, $lang_str . "\n\$string['$key'] = '$value';");
+		fclose($file);
+	}
+
+	return true;
 }
