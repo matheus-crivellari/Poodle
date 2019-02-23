@@ -203,6 +203,8 @@ $string[\'pluginname\'] = ' . "'$exhibition_name'" . ";\n";
 
 /**
  * Test function
+ * Test not implemented yet features here 
+ * before putting them live to production code
  */
 function test(){
 	// $json = getPoodleJson();
