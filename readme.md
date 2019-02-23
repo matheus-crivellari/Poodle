@@ -43,6 +43,7 @@ The idea behind this project is to provide a *CLI* tool for ***Moodle*** as well
 - Added `init` command;
 - Added `lang` command;
 - Added `str` command;
+- Added `task` command;
 
 ---
 
@@ -50,7 +51,7 @@ The idea behind this project is to provide a *CLI* tool for ***Moodle*** as well
 1. [OK] - Plugin initialization command;
 2. [OK] - Locale creation command;
 3. [OK] - Locale string registration command;
-4. [&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;] - Tasks craetion command;
+4. [OK] - Tasks craetion command;
 5. [&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;] - Events creation command;
 6. [&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;] - Webservice function creation command;
 7. [&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;] - Classes creation command;

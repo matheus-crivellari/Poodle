@@ -8,7 +8,7 @@ if($command = param(1)){
      */
     if($command == 'init'){
         if(file_exists($f . '/version.php')){
-            echo 'Fatal: A plugin already exists in this folder';
+            echo 'Fatal: A plugin already exists in this folder.';
             exit(1);
         }
 
@@ -17,12 +17,12 @@ if($command = param(1)){
         $exhibition_name = param(4);
 
         if(!$type){
-            echo 'Fatal: Your plugin must specify a type';
+            echo 'Fatal: Your plugin must specify a type.';
             exit(1);
         }
 
         if(!$pluginname){
-            echo 'Fatal: Your plugin must have a name';
+            echo 'Fatal: Your plugin must have a name.';
             exit(1);
         }
 
@@ -79,7 +79,15 @@ $string[\'pluginname\'] = ' . "'$exhibition_name'" . ";";
         fopen($f . '/db/upgrade.php','w');
         fopen($f . '/db/access.php','w');
         fopen($f . '/db/install.php','w');
-        fopen($f . '/db/uninstall.php','w');
+		fopen($f . '/db/uninstall.php','w');
+		
+		$file = fopen($f . '/db/tasks.php','w');
+		fwrite($file, "<?php
+\$tasks = [
+	
+];");
+		fclose($file);
+		
         fopen($f . '/db/events.php','w');
         fopen($f . '/db/messages.php','w');
         fopen($f . '/db/services.php','w');
@@ -91,28 +99,28 @@ $string[\'pluginname\'] = ' . "'$exhibition_name'" . ";";
 
         fopen($f . '/settings.php', 'w');
         fopen($f . '/readme_moodle.txt', 'w');
-        // fopen($f . '/README.md', 'w');
+		// fopen($f . '/README.md', 'w');
 
-        echo 'Message: Moodle plugin successfully created';
+        echo 'Message: Moodle plugin successfully created.';
 
         exit(0);
     }
 
     /**
-     * Language commands group
+     * Language commands group.
      */
-    if(param(1) == 'lang'){
+    if($command == 'lang'){
         $op = param(2);
 
         isAPlugin();
 
         if($op == ''){
-            echo 'Fatal: You must specify an operation';
+            echo 'Fatal: You must specify an operation.';
             exit(1);
         }
 
         /**
-         * Add a new language folder and
+         * Add a new language folder and string file copied from en.
          */
         if($op == 'add'){
             $json = getPoodleJson();
@@ -122,7 +130,7 @@ $string[\'pluginname\'] = ' . "'$exhibition_name'" . ";";
             $language = param(3);
 
             if($language == ''){
-                echo 'Fatal: You must specify a language';
+                echo 'Fatal: You must specify a language.';
                 exit(1);
             }
 
@@ -137,16 +145,16 @@ $string[\'pluginname\'] = ' . "'$exhibition_name'" . ";";
             fwrite($file, $lang_str);
             fclose($file);
 
-            echo 'Message: Language string file successfully created';
+            echo 'Message: Language string file successfully created.';
 
             exit(0);
         }
     }
 
     /**
-     * Add a language string
+     * Add a language string.
      */
-    if(param(1) == 'str'){
+    if($command == 'str'){
 		$json = getPoodleJson();
 
 		if($op = param(2)){
@@ -158,11 +166,11 @@ $string[\'pluginname\'] = ' . "'$exhibition_name'" . ";";
 
 					add_locale_string($key, $value);
 
-					echo "Message: New string key \"$key\" added to locale files";
+					echo "Message: New string key \"$key\" added to locale files.";
 					exit(0);
 
 				}else{
-					echo 'Fatal: You must specify a key value for your locale string';
+					echo 'Fatal: You must specify a key value for your locale string.';
 					exit(1);
 				}
 			}
@@ -170,21 +178,21 @@ $string[\'pluginname\'] = ' . "'$exhibition_name'" . ";";
 			/**
 			 * Insert new options for str command here
 			 * all options must end in an exit function
-			 * passing 1 for error 0 for success
+			 * passing 1 for error 0 for success.
 			 *
-			 * if no matching option is passed
-			 * code will exit with error
+			 * If no matching option is passed
+			 * code will exit with error.
 			 */
 
-			echo "Fatal: Unknown option \"$op\" for command str";
+			echo "Fatal: Unknown option \"$op\" for command str.";
 			exit(1);
 		}else{
-			echo 'Fatal: You must specify an operation';
+			echo 'Fatal: You must specify an operation.';
 			exit(1);
 		}
     }
     
-    if(param(1) == 'task'){
+    if($command == 'task'){
 		$json       	= getPoodleJson();
 		$component_name = $json->component_name;
 
@@ -193,7 +201,7 @@ $string[\'pluginname\'] = ' . "'$exhibition_name'" . ";";
 				$taskname = param(3);
 			
 				if($taskname == ''){
-					echo 'Fatal: You must specify a task name';
+					echo 'Fatal: You must specify a task name.';
 					exit(1);
 				}
 		
@@ -204,6 +212,10 @@ $string[\'pluginname\'] = ' . "'$exhibition_name'" . ";";
 				if(!file_exists($f . '/classes/task')){
 					mkdir($f . '/classes/task');
 				}
+				
+				if(!file_exists($f . '/db/tasks.php')){
+					mkdir($f . '/db/tasks.php');
+				}
 		
 				$taskname 			= preg_replace('/\s+/', '', $taskname);
 				$taskname_str_key 	= $taskname . '_task';
@@ -212,7 +224,7 @@ $string[\'pluginname\'] = ' . "'$exhibition_name'" . ";";
 namespace $component_name\\task;
 
 /**
- * An example of a scheduled task.
+ * This a scheduled task.
  */
 class $taskname extends \\core\\task\\scheduled_task {
 	
@@ -229,9 +241,7 @@ class $taskname extends \\core\\task\\scheduled_task {
 	 * Execute the task.
 	 */
 	public function execute() {
-		// Apply fungus cream.
-		// Apply chainsaw.
-		// Apply olive oil.
+		//TO-DO: Implements task logic here.
 	}
 }";
 			
@@ -241,24 +251,36 @@ class $taskname extends \\core\\task\\scheduled_task {
 		
 				add_locale_string($taskname_str_key, $taskname . ' scheduled task');
 
-				/**
-				 * TO-DO: Registrate the task on the 
-				 * db task file
-				 */
+				$db_task_str = file_get_contents($f . '/db/tasks.php');
+				$new_task_str = "	[
+		'classname' 	=> '$component_name\\task\\$taskname',
+		'blocking' 		=> 0,
+		'minute' 		=> '*/5', // Every five minutes
+		'hour' 			=> '*',   // of any hour  
+		'day' 			=> '*',   // of any day
+		'month' 		=> '*',   // at any month
+		'dayofweek' 	=> '*',   // at any day of week
+	],
+";
+				$db_task_str = preg_replace('/(\<\?php)(.*)(];)/sm', "$1$2$new_task_str$3", $db_task_str);
+				$file = fopen($f . '/db/tasks.php','w');
+				fwrite($file, $db_task_str);
+				fclose($file);
+
 		
-				echo 'Message: Scheduled task class successfully added';
+				echo 'Message: Scheduled task class successfully added.';
 				exit(0);
 			}
 
-			echo "Fatal: Unknown option \"$op\" for command str";
+			echo "Fatal: Unknown option \"$op\" for command str.";
 			exit(1);
 		}else{
-			echo 'Fatal: You must specify an operation';
+			echo 'Fatal: You must specify an operation.';
 			exit(1);
 		}
     }
 
-	if(param(1) == 'test'){
+	if($command == 'test'){
 		test();
 	}
 }
@@ -271,7 +293,7 @@ class $taskname extends \\core\\task\\scheduled_task {
 function test(){
 	// $json = getPoodleJson();
 
-    echo ':D';
+    echo ':D.';
 	exit(0);
 }
 
@@ -280,8 +302,9 @@ function test(){
  */
 function isAPlugin()
 {
+	global $f;
     if(!file_exists($f . '/version.php')){
-        echo 'Fatal: Not a Moodle plugin';
+        echo 'Fatal: Not a Moodle plugin.';
         exit(1);
     }
 }
@@ -294,7 +317,7 @@ function getPoodleJson()
 {
 	global $f;
     if(!file_exists($f . '/poodle.json')){
-        echo 'Fatal: poodle.json is missing.';
+        echo 'Fatal: poodle.json is missing..';
         exit(1);
     }
 
