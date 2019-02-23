@@ -1,11 +1,13 @@
+#!/usr/bin/php
 <?php
+$f = getcwd();
 
 if($command = param(1)){
     /**
      * 'init' command.
      */
     if($command == 'init'){
-        if(file_exists('./version.php')){
+        if(file_exists($f . '/version.php')){
             echo 'Fatal: A plugin already exists in this folder';
             exit(1);
         }
@@ -65,30 +67,30 @@ defined('MOODLE_INTERNAL') || die();
         fwrite($file, $version_str);
         fclose($file);
 
-        mkdir('./lang/en', 0777, true);
-        $file = fopen("./lang/en/$component_name.php",'w');
+        mkdir($f . '/lang/en', 0777, true);
+        $file = fopen($f . "/lang/en/$component_name.php",'w');
 
         $lang_str = '<?php
 $string[\'pluginname\'] = ' . "'$exhibition_name'" . ";\n";
         fwrite($file, $lang_str);
         fclose($file);
 
-        mkdir('./db');
-        fopen('./db/upgrade.php','w');
-        fopen('./db/access.php','w');
-        fopen('./db/install.php','w');
-        fopen('./db/uninstall.php','w');
-        fopen('./db/events.php','w');
-        fopen('./db/messages.php','w');
-        fopen('./db/services.php','w');
-        fopen('./db/renamedclasses.php','w');
+        mkdir($f . '/db');
+        fopen($f . '/db/upgrade.php','w');
+        fopen($f . '/db/access.php','w');
+        fopen($f . '/db/install.php','w');
+        fopen($f . '/db/uninstall.php','w');
+        fopen($f . '/db/events.php','w');
+        fopen($f . '/db/messages.php','w');
+        fopen($f . '/db/services.php','w');
+        fopen($f . '/db/renamedclasses.php','w');
 
-        mkdir('./classes', 0777);
-        mkdir('./cli', 0777);
+        mkdir($f . '/classes', 0777);
+        mkdir($f . '/cli', 0777);
 
-        fopen('./settings.php', 'w');
-        fopen('./readme_moodle.txt', 'w');
-        // fopen('./README.md', 'w');
+        fopen($f . '/settings.php', 'w');
+        fopen($f . '/readme_moodle.txt', 'w');
+        // fopen($f . '/README.md', 'w');
 
         echo 'Message: Moodle plugin successfully created';
 
@@ -114,7 +116,7 @@ $string[\'pluginname\'] = ' . "'$exhibition_name'" . ";\n";
         if($op == 'add'){
             $json = getPoodleJson();
 
-            $lang_str = file_get_contents('./lang/en/' . $json->component_name . '.php');
+            $lang_str = file_get_contents($f . '/lang/en/' . $json->component_name . '.php');
 
             $language = param(3);
 
@@ -123,13 +125,13 @@ $string[\'pluginname\'] = ' . "'$exhibition_name'" . ";\n";
                 exit(1);
             }
 
-            if(!file_exists("./lang/$language"))
-                mkdir("./lang/$language");
+            if(!file_exists($f . "/lang/$language"))
+                mkdir($f . "/lang/$language");
 
-            if(!file_exists("./lang/$language/" . $json->component_name . '.php'))
-                $file = fopen("./lang/$language/" . $json->component_name . '.php','w');
+            if(!file_exists($f . "/lang/$language/" . $json->component_name . '.php'))
+                $file = fopen($f . "/lang/$language/" . $json->component_name . '.php','w');
             else
-                $file = fopen("./lang/$language/" . $json->component_name . '.php','+w');
+                $file = fopen($f . "/lang/$language/" . $json->component_name . '.php','+w');
 
             fwrite($file, $lang_str);
             fclose($file);
@@ -153,13 +155,13 @@ $string[\'pluginname\'] = ' . "'$exhibition_name'" . ";\n";
 					// $key = strtolower($key);
 					$value = param(4);
 
-					$folders = scandir('./lang');
+					$folders = scandir($f . '/lang');
 
 					foreach($folders as $folder){
 						if($folder == '.') continue;
 						if($folder == '..') continue;
 
-						$lang_file_name = "./lang/$folder/$json->component_name.php";
+						$lang_file_name = $f . "/lang/$folder/$json->component_name.php";
 						$lang_str = file_get_contents($lang_file_name);
 
 
@@ -203,9 +205,9 @@ $string[\'pluginname\'] = ' . "'$exhibition_name'" . ";\n";
  * Test function
  */
 function test(){
-	$json = getPoodleJson();
+	// $json = getPoodleJson();
 
-
+    echo ':D';
 	exit(0);
 }
 
@@ -214,7 +216,7 @@ function test(){
  */
 function isAPlugin()
 {
-    if(!file_exists('./version.php')){
+    if(!file_exists($f . '/version.php')){
         echo 'Fatal: Not a Moodle plugin';
         exit(1);
     }
@@ -226,12 +228,12 @@ function isAPlugin()
  */
 function getPoodleJson()
 {
-    if(!file_exists('./poodle.json')){
+    if(!file_exists($f . '/poodle.json')){
         echo 'Fatal: poodle.json is missing.';
         exit(1);
     }
 
-    return json_decode(file_get_contents('./poodle.json'));
+    return json_decode(file_get_contents($f . '/poodle.json'));
 
 }
 
