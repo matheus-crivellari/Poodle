@@ -35,10 +35,19 @@ The idea behind this project is to provide a *CLI* tool for ***Moodle*** as well
 - `<key>` (required): Enter the key name for your new string;
 - `<value>` (optional): Enter a default value for your new string. This parameter is optional, if ommited it will leave the new string locale entry as an empty string;
 
+#### 3. Adding scheduled cron tasks
+
+    php tasks add <task_name>
+
+- `<task_name>` (required): Following the Frankenstyle Moodle's convention, enter the name for your scheduled task;
+
 ---
 
-### Changelog
-#### [UNRELEASED] - 2019-02-21
+### CHANGELOG
+#### [UNRELEASED] - 2019-03-29
+##### Changed
+- `init` command now adds default code to files `db/install.php` and `db/upgrade.php`;
+
 ##### Added
 - Added `init` command;
 - Added `lang` command;
@@ -47,12 +56,12 @@ The idea behind this project is to provide a *CLI* tool for ***Moodle*** as well
 
 ---
 
-### Roadmap
+### ROADMAP
 1. [OK] - Plugin initialization command;
 2. [OK] - Locale creation command;
 3. [OK] - Locale string registration command;
 4. [OK] - Tasks craetion command;
-5. [&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;] - Events creation command;
+5. [&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;] - Event creation command;
 6. [&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;] - Webservice function creation command;
 7. [&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;] - Classes creation command;
 8. [&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;] - Lib functions creation command

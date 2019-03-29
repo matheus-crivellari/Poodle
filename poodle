@@ -162,11 +162,9 @@ function xmldb_".$component_name."_install() {
         if($op == ''){
             echo 'Fatal: You must specify an operation.';
             exit(1);
-        }
+		}
 
-        /**
-         * Add a new language folder and string file copied from en.
-         */
+		// NOTE Add a new language folder and string file copied from en.
         if($op == 'add'){
             $json = getPoodleJson();
 
@@ -196,9 +194,7 @@ function xmldb_".$component_name."_install() {
         }
     }
 
-    /**
-     * Add a language string.
-     */
+    // NOTE Add a language string.
     if($command == 'str'){
 		$json = getPoodleJson();
 
@@ -237,6 +233,7 @@ function xmldb_".$component_name."_install() {
 		}
     }
 
+	// NOTE Add a scheduled task.
     if($command == 'task'){
 		$json       	= getPoodleJson();
 		$component_name = $json->component_name;
@@ -362,7 +359,7 @@ function getPoodleJson()
 {
 	global $f;
     if(!file_exists($f . '/poodle.json')){
-        echo 'Fatal: poodle.json is missing..';
+        echo 'Fatal: poodle.json is missing.';
         exit(1);
     }
 
