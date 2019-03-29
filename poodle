@@ -34,6 +34,8 @@ if($command = param(1)){
         $author = readline('Enter your name: ');
         $email  = readline('Enter your e-mail:');
 
+		// NOTE Poodle json
+		// FIXME Replace poodle.json by a PHP serialized file
         $json = fopen('poodle.json','w');
         fwrite($json,json_encode([
             'author' => [
@@ -45,6 +47,7 @@ if($command = param(1)){
         ]));
         fclose($json);
 
+		// NOTE version.php file
         $file = fopen('version.php', 'w');
         $current_year = date('Y');
         $version_str = "<?php
@@ -73,21 +76,63 @@ defined('MOODLE_INTERNAL') || die();
         $lang_str = '<?php
 $string[\'pluginname\'] = ' . "'$exhibition_name'" . ";";
         fwrite($file, $lang_str);
-        fclose($file);
+		fclose($file);
+		// end of version.php
 
-        mkdir($f . '/db');
-        fopen($f . '/db/upgrade.php','w');
-        fopen($f . '/db/access.php','w');
-        fopen($f . '/db/install.php','w');
+		mkdir($f . '/db');
+
+		// NOTE upgrade.php file
+		$file = fopen($f . '/db/upgrade.php','w');
+		$upgrade_str = "<?php
+/**
+ * $component_name plugin upgrade code.
+ *
+ * @package     $component_name
+ * @copyright   $current_year, $author <$email>
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+defined('MOODLE_INTERNAL') || die;
+
+function xmldb_".$component_name."_upgrade(\$oldversion) {
+	global \$DB;
+
+	return true;
+}";
+		fwrite($file, $upgrade_str);
+		fclose($file);
+		// end of upgrade.php file
+
+		fopen($f . '/db/access.php','w');
+
+		// NOTE install.php file
+		$file = fopen($f . '/db/install.php','w');
+		$isntal_str = "<?php
+/**
+ * Post installation and migration code.
+ *
+ * @package     $component_name
+ * @copyright   $current_year, $author <$email>
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+defined('MOODLE_INTERNAL') || die;
+
+function xmldb_".$component_name."_install() {
+	global \$DB;
+}";
+		fwrite($file, $isntal_str);
+        fclose($file);
+		// end of install.php file
+
+
 		fopen($f . '/db/uninstall.php','w');
-		
+
 		$file = fopen($f . '/db/tasks.php','w');
 		fwrite($file, "<?php
 \$tasks = [
-	
+
 ];");
 		fclose($file);
-		
+
         fopen($f . '/db/events.php','w');
         fopen($f . '/db/messages.php','w');
         fopen($f . '/db/services.php','w');
@@ -191,7 +236,7 @@ $string[\'pluginname\'] = ' . "'$exhibition_name'" . ";";
 			exit(1);
 		}
     }
-    
+
     if($command == 'task'){
 		$json       	= getPoodleJson();
 		$component_name = $json->component_name;
@@ -199,27 +244,27 @@ $string[\'pluginname\'] = ' . "'$exhibition_name'" . ";";
 		if($op = param(2)){
 			if($op == 'add'){
 				$taskname = param(3);
-			
+
 				if($taskname == ''){
 					echo 'Fatal: You must specify a task name.';
 					exit(1);
 				}
-		
+
 				if(!file_exists($f . '/classes')){
 					mkdir($f . '/classes');
 				}
-		
+
 				if(!file_exists($f . '/classes/task')){
 					mkdir($f . '/classes/task');
 				}
-				
+
 				if(!file_exists($f . '/db/tasks.php')){
 					mkdir($f . '/db/tasks.php');
 				}
-		
+
 				$taskname 			= preg_replace('/\s+/', '', $taskname);
 				$taskname_str_key 	= $taskname . '_task';
-		
+
 				$task_class_str = "<?php
 namespace $component_name\\task;
 
@@ -227,7 +272,7 @@ namespace $component_name\\task;
  * This a scheduled task.
  */
 class $taskname extends \\core\\task\\scheduled_task {
-	
+
 	/**
 	 * Return the task's name as shown in admin screens.
 	 *
@@ -236,7 +281,7 @@ class $taskname extends \\core\\task\\scheduled_task {
 	public function get_name() {
 		return get_string('$taskname_str_key', '$component_name');
 	}
-	
+
 	/**
 	 * Execute the task.
 	 */
@@ -244,11 +289,11 @@ class $taskname extends \\core\\task\\scheduled_task {
 		//TO-DO: Implements task logic here.
 	}
 }";
-			
+
 				$file = fopen($f . "/classes/task/$taskname.php", 'w');
 				fwrite($file, $task_class_str);
 				fclose($file);
-		
+
 				add_locale_string($taskname_str_key, $taskname . ' scheduled task');
 
 				$db_task_str = file_get_contents($f . '/db/tasks.php');
@@ -256,7 +301,7 @@ class $taskname extends \\core\\task\\scheduled_task {
 		'classname' 	=> '$component_name\\task\\$taskname',
 		'blocking' 		=> 0,
 		'minute' 		=> '*/5', // Every five minutes
-		'hour' 			=> '*',   // of any hour  
+		'hour' 			=> '*',   // of any hour
 		'day' 			=> '*',   // of any day
 		'month' 		=> '*',   // at any month
 		'dayofweek' 	=> '*',   // at any day of week
@@ -267,7 +312,7 @@ class $taskname extends \\core\\task\\scheduled_task {
 				fwrite($file, $db_task_str);
 				fclose($file);
 
-		
+
 				echo 'Message: Scheduled task class successfully added.';
 				exit(0);
 			}
@@ -287,7 +332,7 @@ class $taskname extends \\core\\task\\scheduled_task {
 
 /**
  * Test function
- * Test not implemented yet features here 
+ * Test not implemented yet features here
  * before putting them live to production code
  */
 function test(){
