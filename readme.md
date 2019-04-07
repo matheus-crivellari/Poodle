@@ -9,13 +9,13 @@ The idea behind this project is to provide a *CLI* tool for ***Moodle*** as well
 ### Getting started
 1. Create a folder where we're going to put our plugin files inside;
 
-2. Then enter the just created folder and paste the poodle file inside it;
+2. Then enter at the created folder and paste the poodle file inside it;
 
 
 3. The first and handful command, is `init`, it brings up a basic folder structure and the minimum required files for a Moodle plugin to work.
 
         php poodle init <type> <name> <"Exhibition name">
-    - `<type>` (required): Following the Frankenstyle Moodle's convention for naming a plugin you must choose one of the available plugin types;
+    - `<type>` (required): Following the Frankenstyle Moodle's convention for naming a plugin you must choose one of the available [plugin types](https://docs.moodle.org/dev/Plugin_types);
     - `<name>` (required): Following the Frankenstyle Moodle's convention for naming a plugin you must choose a name for your plugin;
     - `<"Exibition name">` (optional): You can set an exhibition name which will be displayed to the user in Moodle administration pages, if you leave it blank, it will use the same value as the component name which is `<type>`_`<name>`;
 
@@ -41,6 +41,10 @@ The idea behind this project is to provide a *CLI* tool for ***Moodle*** as well
 
 - `<task_name>` (required): Following the Frankenstyle Moodle's convention, enter the name for your scheduled task;
 
+#### 4. CLI help
+    php poodle help
+
+- Run the command above to display a list with all the current available commands.
 ---
 
 ### CHANGELOG

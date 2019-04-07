@@ -34,10 +34,10 @@ if($command = param(1)){
         $author = readline('Enter your name: ');
         $email  = readline('Enter your e-mail:');
 
-		// NOTE Poodle json
-		// FIXME Replace poodle.json by a PHP serialized file
-        $json = fopen('poodle.json','w');
-        fwrite($json,json_encode([
+		// NOTE Poodle php
+        // NOTE poodle.json was replaced by a PHP serialized file
+        $php_file = fopen('poodle.php','w');
+        fwrite($php_file,serialize([
             'author' => [
                 'name' => $author,
                 'email' => $email,
@@ -45,7 +45,7 @@ if($command = param(1)){
             'component_name' => $component_name
 
         ]));
-        fclose($json);
+        fclose($php_file);
 
 		// NOTE version.php file
         $file = fopen('version.php', 'w');
@@ -60,7 +60,7 @@ if($command = param(1)){
 defined('MOODLE_INTERNAL') || die();
 
 ";
-        $version_str .= '$plugin->version   = ' . date('Y') . date('m') . date('d') . '01' . ";\n";
+        $version_str .= '$plugin->version   = ' . date('Y') . date('m') . date('d') . '00' . ";\n";
         $version_str .= '$plugin->requires  = 2019021500' . ";\n";
         $version_str .= '$plugin->cron      = 0' . ";\n";
         $version_str .= '$plugin->component = ' . "'$component_name'" . ";\n";
@@ -166,9 +166,10 @@ function xmldb_".$component_name."_install() {
 
 		// NOTE Add a new language folder and string file copied from en.
         if($op == 'add'){
-            $json = getPoodleJson();
+            $configFile = getConfigFile();
+            extract($configFile);
 
-            $lang_str = file_get_contents($f . '/lang/en/' . $json->component_name . '.php');
+            $lang_str = file_get_contents($f . '/lang/en/' . $component_name . '.php');
 
             $language = param(3);
 
@@ -180,10 +181,10 @@ function xmldb_".$component_name."_install() {
             if(!file_exists($f . "/lang/$language"))
                 mkdir($f . "/lang/$language");
 
-            if(!file_exists($f . "/lang/$language/" . $json->component_name . '.php'))
-                $file = fopen($f . "/lang/$language/" . $json->component_name . '.php','w');
+            if(!file_exists($f . "/lang/$language/" . $component_name . '.php'))
+                $file = fopen($f . "/lang/$language/" . $component_name . '.php','w');
             else
-                $file = fopen($f . "/lang/$language/" . $json->component_name . '.php','+w');
+                $file = fopen($f . "/lang/$language/" . $component_name . '.php','+w');
 
             fwrite($file, $lang_str);
             fclose($file);
@@ -196,7 +197,8 @@ function xmldb_".$component_name."_install() {
 
     // NOTE Add a language string.
     if($command == 'str'){
-		$json = getPoodleJson();
+		$configFile = getConfigFile();
+        extract($configFile);
 
 		if($op = param(2)){
 			if($op == 'add'){
@@ -235,8 +237,8 @@ function xmldb_".$component_name."_install() {
 
 	// NOTE Add a scheduled task.
     if($command == 'task'){
-		$json       	= getPoodleJson();
-		$component_name = $json->component_name;
+        $configFile     = getConfigFile();
+        extract($configFile);
 
 		if($op = param(2)){
 			if($op == 'add'){
@@ -327,13 +329,16 @@ class $taskname extends \\core\\task\\scheduled_task {
 	}
 }
 
+if($command == 'help'){
+    showHelpList();
+}
 /**
  * Test function
  * Test not implemented yet features here
  * before putting them live to production code
  */
 function test(){
-	// $json = getPoodleJson();
+	// $json = getConfigFile();
 
     echo ':D.';
 	exit(0);
@@ -352,18 +357,18 @@ function isAPlugin()
 }
 
 /**
- * Raises a fatal error if there is no poodle.json file in folder
+ * Raises a fatal error if there is no poodle.php file in folder
  * or returns a associative array based on its contents
  */
-function getPoodleJson()
+function getConfigFile()
 {
 	global $f;
-    if(!file_exists($f . '/poodle.json')){
-        echo 'Fatal: poodle.json is missing.';
+    if(!file_exists($f . '/poodle.php')){
+        echo 'Fatal: poodle.php is missing.';
         exit(1);
     }
 
-    return json_decode(file_get_contents($f . '/poodle.json'));
+    return unserialize(file_get_contents($f . '/poodle.php'));
 
 }
 
@@ -382,7 +387,8 @@ function param($index = 0)
 function add_locale_string($key, $value='')
 {
 	global $f;
-	$json = getPoodleJson();
+	$configFile = getConfigFile();
+    extract($configFile);
 
 	$folders = scandir($f . '/lang');
 
@@ -390,7 +396,7 @@ function add_locale_string($key, $value='')
 		if($folder == '.') continue;
 		if($folder == '..') continue;
 
-		$lang_file_name = $f . "/lang/$folder/$json->component_name.php";
+		$lang_file_name = $f . "/lang/$folder/$component_name.php";
 		$lang_str = file_get_contents($lang_file_name);
 
 
@@ -400,4 +406,32 @@ function add_locale_string($key, $value='')
 	}
 
 	return true;
+}
+
+/**
+ * Show List of available commands
+ */
+function showHelpList()
+{
+    // new plugin
+    echo "\n\r";
+    echo "\033[31m To create a new plugin run: \033[0m" . PHP_EOL;
+    echo "\t-- php poodle init <type> <name> <'Exhibition name'>\n\r";
+    echo "\n\r";
+
+    // locale files and folders
+    echo "\033[31m To create locale files and folders run: \033[0m" . PHP_EOL;
+    echo "\t-- php poodle lang add <language>\n\r";
+    echo "\n\r";
+
+    // adding string to locale
+    echo "\033[31m To add string keys to your locale run: \033[0m" . PHP_EOL;
+    echo "\t-- php poodle str add <key> <value>\n\r";
+    echo "\n\r";
+
+    //  adding scheduled cron tasks
+    echo "\033[31m To add scheduled cron tasks run: \033[0m" . PHP_EOL;
+    echo "\t-- php poodle tasks add <task_name>\n\r";
+    echo "\n\r";
+
 }
