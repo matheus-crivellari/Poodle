@@ -6,6 +6,16 @@ Many of the most used and powerful web development frameworks around the world w
 The idea behind this project is to provide a *CLI* tool for ***Moodle*** as well, so that **Moodle Plugin** developers can work with ease, and avoid common human mistakes when developing, leaving the hard work of creating files and structuring folders for the machine.
 
 ## Documentation
+### Instalation
+
+For Mac and Linux users:
+
+    sudo curl https://raw.githubusercontent.com/matheus-crivellari/Poodle/master/poodle > poodle
+
+For Windows users: 
+
+    explorer.exe https://raw.githubusercontent.com/matheus-crivellari/Poodle/master/poodle > poodle
+
 ### Getting started
 1. Create a folder where we're going to put our plugin files inside;
 
