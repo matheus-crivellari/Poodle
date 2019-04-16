@@ -3,11 +3,28 @@
 $f = getcwd();
 
 if($command = param(1)){
+	if($command == '-v' || $command == '--version'){
+		echo <<<'END'
+
+ _____                    .-..-.
+|  __ \                   | || |
+| |__) | .---.  .---.  .-.| || | .---.
+|  ___/ /  _  \/  _  \/  _  || |/  __ \
+| |     | |_| || |_| || |_| || || |___/
+|_|     \_____/\_____/\_____||_|\_____) (v1.1.0)
+
+CLI Tool for Moodle Plugin development.
+
+END;
+
+        exit(0);
+	}
     /**
      * 'init' command.
      */
     if($command == 'init'){
-        if(file_exists($f . '/version.php')){
+
+		if(file_exists($f . '/version.php')){
             echo 'Fatal: A plugin already exists in this folder.';
             exit(1);
         }
