@@ -163,6 +163,30 @@ function xmldb_".$component_name."_install() {
         fopen($f . '/readme_moodle.txt', 'w');
 		// fopen($f . '/README.md', 'w');
 
+		$file = fopen($f . '/index.php', 'w');
+		fwrite($file, "<?php
+require_once('../../config.php');
+\$renderer = \$PAGE->get_renderer('$component_name');
+
+\$url    = new moodle_url('/$type/$pluginname/index.php');
+\$urlstr = \$url->out(false);
+
+\$context = context_system::instance();
+\$PAGE->set_context(\$context);
+
+\$PAGE->set_pagelayout('admin');
+\$PAGE->set_url(\$urlstr);
+\$PAGE->set_title(get_string('pluginname', '$component_name'));
+\$PAGE->set_heading(get_string('pluginname', '$component_name'));
+
+\$PAGE->requires->jquery();
+
+print \$OUTPUT->header();
+print \$renderer->render_index();
+print \$OUTPUT->footer();
+?>");
+		fclose($file);
+
         echo 'Message: Moodle plugin successfully created.';
 
         exit(0);
