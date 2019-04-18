@@ -1,0 +1,13 @@
+ROADMAP:
+    ☐ Plugin initialization command:
+        ☐ README.MD basic file;
+        ☐ .gitignore basic file;
+        ☐ .gitkeep files;
+        ☐ renderer class with render_index method;
+    ✔ Locale creation command; @done(19-04-18 14:05)
+    ✔ Locale string registration command; @done(19-04-18 14:05)
+    ✔ Tasks craetion command; @done(19-04-18 14:05)
+    ☐ Event creation command;
+    ☐ Webservice function creation command;
+    ☐ Classes creation command;
+    ☐ Lib functions creation command
