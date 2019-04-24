@@ -3,8 +3,8 @@
 $f = getcwd();
 
 if($command = param(1)){
-	if($command == '-v' || $command == '--version'){
-		echo <<<'END'
+    if($command == '-v' || $command == '--version'){
+        echo <<<'END'
 
  _____                    .-..-.
 |  __ \                   | || |
@@ -18,13 +18,13 @@ CLI Tool for Moodle Plugin development.
 END;
 
         exit(0);
-	}
+    }
     /**
      * 'init' command.
      */
     if($command == 'init'){
 
-		if(file_exists($f . '/version.php')){
+        if(file_exists($f . '/version.php')){
             echo 'Fatal: A plugin already exists in this folder.';
             exit(1);
         }
@@ -51,7 +51,7 @@ END;
         $author = readline('Enter your name: ');
         $email  = readline('Enter your e-mail:');
 
-		// NOTE Poodle php
+        // NOTE Poodle php
         // NOTE poodle.json was replaced by a PHP serialized file
         $php_file = fopen('poodle.php','w');
         fwrite($php_file,serialize([
@@ -64,7 +64,7 @@ END;
         ]));
         fclose($php_file);
 
-		// NOTE version.php file
+        // NOTE version.php file
         $file = fopen('version.php', 'w');
         $current_year = date('Y');
         $version_str = "<?php
@@ -93,14 +93,14 @@ defined('MOODLE_INTERNAL') || die();
         $lang_str = '<?php
 $string[\'pluginname\'] = ' . "'$exhibition_name'" . ";";
         fwrite($file, $lang_str);
-		fclose($file);
-		// end of version.php
+        fclose($file);
+        // end of version.php
 
-		mkdir($f . '/db');
+        mkdir($f . '/db');
 
-		// NOTE upgrade.php file
-		$file = fopen($f . '/db/upgrade.php','w');
-		$upgrade_str = "<?php
+        // NOTE upgrade.php file
+        $file = fopen($f . '/db/upgrade.php','w');
+        $upgrade_str = "<?php
 /**
  * $component_name plugin upgrade code.
  *
@@ -111,19 +111,19 @@ $string[\'pluginname\'] = ' . "'$exhibition_name'" . ";";
 defined('MOODLE_INTERNAL') || die;
 
 function xmldb_".$component_name."_upgrade(\$oldversion) {
-	global \$DB;
+    global \$DB;
 
-	return true;
+    return true;
 }";
-		fwrite($file, $upgrade_str);
-		fclose($file);
-		// end of upgrade.php file
+        fwrite($file, $upgrade_str);
+        fclose($file);
+        // end of upgrade.php file
 
-		fopen($f . '/db/access.php','w');
+        fopen($f . '/db/access.php','w');
 
-		// NOTE install.php file
-		$file = fopen($f . '/db/install.php','w');
-		$isntal_str = "<?php
+        // NOTE install.php file
+        $file = fopen($f . '/db/install.php','w');
+        $isntal_str = "<?php
 /**
  * Post installation and migration code.
  *
@@ -134,21 +134,21 @@ function xmldb_".$component_name."_upgrade(\$oldversion) {
 defined('MOODLE_INTERNAL') || die;
 
 function xmldb_".$component_name."_install() {
-	global \$DB;
+    global \$DB;
 }";
-		fwrite($file, $isntal_str);
+        fwrite($file, $isntal_str);
         fclose($file);
-		// end of install.php file
+        // end of install.php file
 
 
-		fopen($f . '/db/uninstall.php','w');
+        fopen($f . '/db/uninstall.php','w');
 
-		$file = fopen($f . '/db/tasks.php','w');
-		fwrite($file, "<?php
+        $file = fopen($f . '/db/tasks.php','w');
+        fwrite($file, "<?php
 \$tasks = [
 
 ];");
-		fclose($file);
+        fclose($file);
 
         fopen($f . '/db/events.php','w');
         fopen($f . '/db/messages.php','w');
@@ -161,10 +161,10 @@ function xmldb_".$component_name."_install() {
 
         fopen($f . '/settings.php', 'w');
         fopen($f . '/readme_moodle.txt', 'w');
-		// fopen($f . '/README.md', 'w');
+        // fopen($f . '/README.md', 'w');
 
-		$file = fopen($f . '/index.php', 'w');
-		fwrite($file, "<?php
+        $file = fopen($f . '/index.php', 'w');
+        fwrite($file, "<?php
 require_once('../../config.php');
 \$renderer = \$PAGE->get_renderer('$component_name');
 
@@ -185,7 +185,43 @@ print \$OUTPUT->header();
 print \$renderer->render_index();
 print \$OUTPUT->footer();
 ?>");
-		fclose($file);
+        fclose($file);
+
+        $file = fopen($f . '/externallib.php','w');
+        fwrite($file, "<?php
+require_once \"\$CFG->libdir/externallib.php\";
+
+class ".$component_name."_external extends external_api
+{
+    public function index_parameters()
+    {
+        return new external_function_parameters([
+            'id' => new external_value(PARAM_INT,
+                'Parameter description for this external function.',
+                VALUE_REQUIRED,
+                0),
+        ]);
+    }
+
+    public static function index(\$id)
+    {
+        global \$CFG;
+
+        return null;
+    }
+
+    public function index_returns()
+    {
+        return new external_multiple_structure(
+            new external_single_structure([
+                'response' => new external_value(PARAM_RAW,
+                    'Response description for this external function.'),
+                ])
+            );
+    }
+}
+");
+        fclose($file);
 
         echo 'Message: Moodle plugin successfully created.';
 
@@ -203,9 +239,9 @@ print \$OUTPUT->footer();
         if($op == ''){
             echo 'Fatal: You must specify an operation.';
             exit(1);
-		}
+        }
 
-		// NOTE Add a new language folder and string file copied from en.
+        // NOTE Add a new language folder and string file copied from en.
         if($op == 'add'){
             $configFile = getConfigFile();
             extract($configFile);
@@ -238,74 +274,74 @@ print \$OUTPUT->footer();
 
     // NOTE Add a language string.
     if($command == 'str'){
-		$configFile = getConfigFile();
+        $configFile = getConfigFile();
         extract($configFile);
 
-		if($op = param(2)){
-			if($op == 'add'){
-				if($key = param(3)){
-					$key = preg_replace('/\s+/', '', $key);
-					// $key = strtolower($key);
-					$value = param(4);
+        if($op = param(2)){
+            if($op == 'add'){
+                if($key = param(3)){
+                    $key = preg_replace('/\s+/', '', $key);
+                    // $key = strtolower($key);
+                    $value = param(4);
 
-					add_locale_string($key, $value);
+                    add_locale_string($key, $value);
 
-					echo "Message: New string key \"$key\" added to locale files.";
-					exit(0);
+                    echo "Message: New string key \"$key\" added to locale files.";
+                    exit(0);
 
-				}else{
-					echo 'Fatal: You must specify a key value for your locale string.';
-					exit(1);
-				}
-			}
+                }else{
+                    echo 'Fatal: You must specify a key value for your locale string.';
+                    exit(1);
+                }
+            }
 
-			/**
-			 * Insert new options for str command here
-			 * all options must end in an exit function
-			 * passing 1 for error 0 for success.
-			 *
-			 * If no matching option is passed
-			 * code will exit with error.
-			 */
+            /**
+             * Insert new options for str command here
+             * all options must end in an exit function
+             * passing 1 for error 0 for success.
+             *
+             * If no matching option is passed
+             * code will exit with error.
+             */
 
-			echo "Fatal: Unknown option \"$op\" for command str.";
-			exit(1);
-		}else{
-			echo 'Fatal: You must specify an operation.';
-			exit(1);
-		}
+            echo "Fatal: Unknown option \"$op\" for command str.";
+            exit(1);
+        }else{
+            echo 'Fatal: You must specify an operation.';
+            exit(1);
+        }
     }
 
-	// NOTE Add a scheduled task.
+    // NOTE Add a scheduled task.
     if($command == 'task'){
         $configFile     = getConfigFile();
         extract($configFile);
 
-		if($op = param(2)){
-			if($op == 'add'){
-				$taskname = param(3);
+        if($op = param(2)){
+            if($op == 'add'){
+                $taskname = param(3);
 
-				if($taskname == ''){
-					echo 'Fatal: You must specify a task name.';
-					exit(1);
-				}
+                if($taskname == ''){
+                    echo 'Fatal: You must specify a task name.';
+                    exit(1);
+                }
 
-				if(!file_exists($f . '/classes')){
-					mkdir($f . '/classes');
-				}
+                if(!file_exists($f . '/classes')){
+                    mkdir($f . '/classes');
+                }
 
-				if(!file_exists($f . '/classes/task')){
-					mkdir($f . '/classes/task');
-				}
+                if(!file_exists($f . '/classes/task')){
+                    mkdir($f . '/classes/task');
+                }
 
-				if(!file_exists($f . '/db/tasks.php')){
-					mkdir($f . '/db/tasks.php');
-				}
+                if(!file_exists($f . '/db/tasks.php')){
+                    mkdir($f . '/db/tasks.php');
+                }
 
-				$taskname 			= preg_replace('/\s+/', '', $taskname);
-				$taskname_str_key 	= $taskname . '_task';
+                $taskname 			= preg_replace('/\s+/', '', $taskname);
+                $taskname_str_key 	= $taskname . '_task';
 
-				$task_class_str = "<?php
+                $task_class_str = "<?php
 namespace $component_name\\task;
 
 /**
@@ -313,61 +349,61 @@ namespace $component_name\\task;
  */
 class $taskname extends \\core\\task\\scheduled_task {
 
-	/**
-	 * Return the task's name as shown in admin screens.
-	 *
-	 * @return string
-	 */
-	public function get_name() {
-		return get_string('$taskname_str_key', '$component_name');
-	}
-
-	/**
-	 * Execute the task.
-	 */
-	public function execute() {
-		//TO-DO: Implements task logic here.
-	}
-}";
-
-				$file = fopen($f . "/classes/task/$taskname.php", 'w');
-				fwrite($file, $task_class_str);
-				fclose($file);
-
-				add_locale_string($taskname_str_key, $taskname . ' scheduled task');
-
-				$db_task_str = file_get_contents($f . '/db/tasks.php');
-				$new_task_str = "	[
-		'classname' 	=> '$component_name\\task\\$taskname',
-		'blocking' 		=> 0,
-		'minute' 		=> '*/5', // Every five minutes
-		'hour' 			=> '*',   // of any hour
-		'day' 			=> '*',   // of any day
-		'month' 		=> '*',   // at any month
-		'dayofweek' 	=> '*',   // at any day of week
-	],
-";
-				$db_task_str = preg_replace('/(\<\?php)(.*)(];)/sm', "$1$2$new_task_str$3", $db_task_str);
-				$file = fopen($f . '/db/tasks.php','w');
-				fwrite($file, $db_task_str);
-				fclose($file);
-
-
-				echo 'Message: Scheduled task class successfully added.';
-				exit(0);
-			}
-
-			echo "Fatal: Unknown option \"$op\" for command str.";
-			exit(1);
-		}else{
-			echo 'Fatal: You must specify an operation.';
-			exit(1);
-		}
+    /**
+     * Return the task's name as shown in admin screens.
+     *
+     * @return string
+     */
+    public function get_name() {
+        return get_string('$taskname_str_key', '$component_name');
     }
 
-	if($command == 'test'){
-		test();
-	}
+    /**
+     * Execute the task.
+     */
+    public function execute() {
+        //TO-DO: Implements task logic here.
+    }
+}";
+
+                $file = fopen($f . "/classes/task/$taskname.php", 'w');
+                fwrite($file, $task_class_str);
+                fclose($file);
+
+                add_locale_string($taskname_str_key, $taskname . ' scheduled task');
+
+                $db_task_str = file_get_contents($f . '/db/tasks.php');
+                $new_task_str = "	[
+        'classname' 	=> '$component_name\\task\\$taskname',
+        'blocking' 		=> 0,
+        'minute' 		=> '*/5', // Every five minutes
+        'hour' 			=> '*',   // of any hour
+        'day' 			=> '*',   // of any day
+        'month' 		=> '*',   // at any month
+        'dayofweek' 	=> '*',   // at any day of week
+    ],
+";
+                $db_task_str = preg_replace('/(\<\?php)(.*)(];)/sm', "$1$2$new_task_str$3", $db_task_str);
+                $file = fopen($f . '/db/tasks.php','w');
+                fwrite($file, $db_task_str);
+                fclose($file);
+
+
+                echo 'Message: Scheduled task class successfully added.';
+                exit(0);
+            }
+
+            echo "Fatal: Unknown option \"$op\" for command str.";
+            exit(1);
+        }else{
+            echo 'Fatal: You must specify an operation.';
+            exit(1);
+        }
+    }
+
+    if($command == 'test'){
+        test();
+    }
 }
 
 if($command == 'help'){
@@ -379,10 +415,10 @@ if($command == 'help'){
  * before putting them live to production code
  */
 function test(){
-	// $json = getConfigFile();
+    // $json = getConfigFile();
 
     echo ':D.';
-	exit(0);
+    exit(0);
 }
 
 /**
@@ -390,7 +426,7 @@ function test(){
  */
 function isAPlugin()
 {
-	global $f;
+    global $f;
     if(!file_exists($f . '/version.php')){
         echo 'Fatal: Not a Moodle plugin.';
         exit(1);
@@ -403,7 +439,7 @@ function isAPlugin()
  */
 function getConfigFile()
 {
-	global $f;
+    global $f;
     if(!file_exists($f . '/poodle.php')){
         echo 'Fatal: poodle.php is missing.';
         exit(1);
@@ -418,7 +454,7 @@ function getConfigFile()
  */
 function param($index = 0)
 {
-	global $argv;
+    global $argv;
     return isset($argv[$index]) ? $argv[$index] : '';
 }
 
@@ -427,26 +463,26 @@ function param($index = 0)
  */
 function add_locale_string($key, $value='')
 {
-	global $f;
-	$configFile = getConfigFile();
+    global $f;
+    $configFile = getConfigFile();
     extract($configFile);
 
-	$folders = scandir($f . '/lang');
+    $folders = scandir($f . '/lang');
 
-	foreach($folders as $folder){
-		if($folder == '.') continue;
-		if($folder == '..') continue;
+    foreach($folders as $folder){
+        if($folder == '.') continue;
+        if($folder == '..') continue;
 
-		$lang_file_name = $f . "/lang/$folder/$component_name.php";
-		$lang_str = file_get_contents($lang_file_name);
+        $lang_file_name = $f . "/lang/$folder/$component_name.php";
+        $lang_str = file_get_contents($lang_file_name);
 
 
-		$file = fopen($lang_file_name,'w');
-		fwrite($file, $lang_str . "\n\$string['$key'] = '$value';");
-		fclose($file);
-	}
+        $file = fopen($lang_file_name,'w');
+        fwrite($file, $lang_str . "\n\$string['$key'] = '$value';");
+        fclose($file);
+    }
 
-	return true;
+    return true;
 }
 
 /**
