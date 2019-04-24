@@ -152,7 +152,36 @@ function xmldb_".$component_name."_install() {
 
         fopen($f . '/db/events.php','w');
         fopen($f . '/db/messages.php','w');
-        fopen($f . '/db/services.php','w');
+
+        $file = fopen($f . '/db/services.php','w');
+        fwrite($file, "<?php
+\$functions = [
+	'".$component_name."_index' => [
+		'classname' 	=> '".$component_name."_external',
+		'methodname'    => 'index',
+		'description'   => 'This function\'s description.',
+		'type'          => 'read',
+		'ajax'          => true,
+		'services' 		=> [
+			MOODLE_OFFICIAL_MOBILE_SERVICE,
+			'".$component_name."_service'
+		],
+	],
+];
+
+\$services = [
+	'".$component_name."_service' => [
+		'functions' 			=> [
+			'".$component_name."_index',
+		],
+		'requiredcapability' 	=> '',
+		'restrictedusers' 		=> 0,
+		'enabled' 				=> 1,
+	]
+];
+");
+        fclose($file);
+
         fopen($f . '/db/renamedclasses.php','w');
 
         mkdir($f . '/classes', 0777);
